@@ -1,0 +1,26 @@
+{
+    "version": 2,
+    "builds": [
+      {
+        "src": "frontend/package.json",
+        "use": "@vercel/node",
+        "config": {
+          "maxLambdaSize": "50mb"
+        }
+      },
+      {
+        "src": "frontend/src/index.html",
+        "use": "@vercel/static"
+      }
+    ],
+    "routes": [
+      {
+        "src": "/(.*)",
+        "dest": "frontend/dist/$1"
+      }
+    ],
+    "env": {
+      "MODE":"Production"
+    }
+  }
+  
