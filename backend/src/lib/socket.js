@@ -7,16 +7,16 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: ["https://chating-with-anyone.vercel.app/"],
+    origin: ["https://chating-with-anyone.vercel.app"],
   },
 });
-
-// used to store online users
-const userSocketMap = {}; // {userId: socketId}
 
 export function getReceiverSocketId(userId) {
   return userSocketMap[userId];
 }
+
+// used to store online users
+const userSocketMap = {}; // {userId: socketId}
 
 io.on("connection", (socket) => {
   console.log("A user connected", socket.id);
@@ -24,22 +24,15 @@ io.on("connection", (socket) => {
   const userId = socket.handshake.query.userId;
   if (userId) userSocketMap[userId] = socket.id;
 
-  // Send updated online users list to all clients
+  // io.emit() is used to send events to all the connected clients
   io.emit("getOnlineUsers", Object.keys(userSocketMap));
 
   socket.on("disconnect", () => {
     console.log("A user disconnected", socket.id);
-
-    // Find and remove the user from the userSocketMap
-    for (const [key, value] of Object.entries(userSocketMap)) {
-      if (value === socket.id) {
-        delete userSocketMap[key];
-        break;
-      }
-    }
-
+    delete userSocketMap[userId];
     io.emit("getOnlineUsers", Object.keys(userSocketMap));
   });
 });
 
 export { io, app, server };
+    
