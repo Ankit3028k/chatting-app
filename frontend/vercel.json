@@ -12,7 +12,7 @@
         "src": "frontend/src/index.html",
         "use": "@vercel/static"
       }
-    ],
+    ], 
     "routes": [
       {
         "src": "/(.*)",
@@ -20,7 +20,8 @@
       }
     ],
     "env": {
-      "MODE":"Production"
+      "MODE":"Production",
+      "no":"no"
     }
   }
   
