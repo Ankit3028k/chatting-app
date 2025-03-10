@@ -1,18 +1,16 @@
-import jwt from "jsonwebtoken";
+import jwt from 'jsonwebtoken';
 
-export const generateToken = (userId, res) => {
-  const token = jwt.sign({ userId }, process.env.JWT_SECRET, {
-    expiresIn: "7d",
-  });
+export const protectRoute = (req, res, next) => {
+  const token = req.cookies.jwt;
+  if (!token) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
 
-  res.cookie("jwt", token, {
-    maxAge: 7 * 24 * 60 * 60 * 1000, // MS
-    httpOnly: true, // Prevent XSS attacks
-    sameSite: "strict", // CSRF protection
-    secure: process.env.NODE_ENV !== "development", // Set to true in production, false in dev
-    // domain: process.env.NODE_ENV === "production" ? "yourdomain.com" : "localhost", // Set correct domain if necessary
-  });
-  
-  return token;
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded; // Assuming the decoded token contains the user ID
+    next();
+  } catch (error) {
+    return res.status(401).json({ message: 'Invalid or expired token' });
+  }
 };
- 
