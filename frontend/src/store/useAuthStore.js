@@ -14,9 +14,9 @@ export const useAuthStore = create((set, get) => ({
   onlineUsers: [],
   socket: null,
 
-  checkAuth: async () => {
+   checkAuth: async () => {
     try {
-      const res = await axiosInstance.get("/auth/check");
+      const res = await axiosInstance.get("/auth/check", { withCredentials: true });
       set({ authUser: res.data });
       get().connectSocket();
     } catch (error) {
@@ -25,7 +25,8 @@ export const useAuthStore = create((set, get) => ({
     } finally {
       set({ isCheckingAuth: false });
     }
-  },
+  }
+  ,
 
   signup: async (data) => {
     set({ isSigningUp: true });
@@ -42,11 +43,17 @@ export const useAuthStore = create((set, get) => ({
   },
 
   login: async (data) => {
+    if (!data.email || !data.password) {
+      toast.error("Please fill in both fields");
+      return;
+    }
+  
     set({ isLoggingIn: true });
     try {
       const res = await axiosInstance.post("/auth/login", data, {
-        withCredentials: true,  // Ensure this is set to true
+        withCredentials: true,
       });
+  
       set({ authUser: res.data });
       toast.success("Logged in successfully");
       get().connectSocket();
