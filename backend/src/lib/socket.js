@@ -9,6 +9,7 @@ const io = new Server(server, {
   cors: {
     origin: "*", // Temporarily allow all origins (don't use in production)
   },
+  transports: ["websocket", "polling"], // Force both WebSocket and Polling
 });
 
 export function getReceiverSocketId(userId) {
