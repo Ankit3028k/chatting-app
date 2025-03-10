@@ -7,12 +7,12 @@ export const generateToken = (userId, res) => {
 
   res.cookie("jwt", token, {
     maxAge: 7 * 24 * 60 * 60 * 1000, // MS
-    httpOnly: true, // prevent XSS attacks cross-site scripting attacks
-    sameSite: "strict", // CSRF attacks cross-site request forgery attacks
-    secure: process.env.NODE_ENV !== "development",
-    partitioned: true, // Add Partitioned attribute
+    httpOnly: true, // Prevent XSS attacks
+    sameSite: "strict", // CSRF protection
+    secure: process.env.NODE_ENV !== "development", // Set to true in production, false in dev
+    // domain: process.env.NODE_ENV === "production" ? "yourdomain.com" : "localhost", // Set correct domain if necessary
   });
-
+  
   return token;
 };
  
