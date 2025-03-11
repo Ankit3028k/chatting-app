@@ -5,7 +5,7 @@ import { io } from "socket.io-client";
 
 const BASE_URL = import.meta.env.MODE === "development"
   ? "http://localhost:3000/api" // For local development
-  : "https://chating-app-eujl.onrender.com/api"; // Production backend URL deployed on Render
+  : "https://chating-app-eujl.onrender.com"; // Production backend URL deployed on Render
 
 export const useAuthStore = create((set, get) => ({
   authUser: null,
@@ -18,7 +18,7 @@ export const useAuthStore = create((set, get) => ({
 
    checkAuth: async () => {
     try {
-      const res = await axiosInstance.get("/auth/check", { withCredentials: true });
+      const res = await axiosInstance.get("/api/auth/check", { withCredentials: true });
       set({ authUser: res.data });
       get().connectSocket();
     } catch (error) {
@@ -33,7 +33,7 @@ export const useAuthStore = create((set, get) => ({
   signup: async (data) => {
     set({ isSigningUp: true });
     try {
-      const res = await axiosInstance.post("/auth/signup", data);
+      const res = await axiosInstance.post("/api/auth/signup", data);
       set({ authUser: res.data });
       toast.success("Account created successfully");
       get().connectSocket();
@@ -52,7 +52,7 @@ export const useAuthStore = create((set, get) => ({
   
     set({ isLoggingIn: true });
     try {
-      const res = await axiosInstance.post("/auth/login", data, {
+      const res = await axiosInstance.post("/api/auth/login", data, {
         withCredentials: true,
       });
   
@@ -69,7 +69,7 @@ export const useAuthStore = create((set, get) => ({
 
   logout: async () => {
     try {
-      await axiosInstance.post("/auth/logout");
+      await axiosInstance.post("/api/auth/logout");
       set({ authUser: null });
       toast.success("Logged out successfully");
       get().disconnectSocket();
@@ -81,7 +81,7 @@ export const useAuthStore = create((set, get) => ({
   updateProfile: async (data) => {
     set({ isUpdatingProfile: true });
     try {
-      const res = await axiosInstance.put("/auth/update-profile", data);
+      const res = await axiosInstance.put("/api/auth/update-profile", data);
       set({ authUser: res.data });
       toast.success("Profile updated successfully");
     } catch (error) {

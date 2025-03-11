@@ -8,11 +8,14 @@ const server = http.createServer(app);
 // Socket.IO server setup
 const io = new Server(server, {
   cors: {
-    origin: "https://chating-with-anyone.vercel.app", // Allow only this origin
+    origin: "https://chating-with-anyone.vercel.app",
     methods: ["GET", "POST"],
-    allowedHeaders: ["Content-Type"],
-    credentials: true,  // Ensure credentials are allowed if you're using cookies or sessions
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+    preflightContinue: true,
+    optionsSuccessStatus: 204,
   },
+  
   transports: ["websocket", "polling"], // Force both WebSocket and Polling as fallback
 });
 
