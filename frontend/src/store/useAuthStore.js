@@ -3,7 +3,9 @@ import { axiosInstance } from "../lib/axios.js";
 import toast from "react-hot-toast";
 import { io } from "socket.io-client";
 
-const BASE_URL = import.meta.env.MODE === "development" ? "https://chating-app-eujl.onrender.com/api" : "https://chating-app-eujl.onrender.com/api";
+const BASE_URL = import.meta.env.MODE === "development"
+  ? "http://localhost:3000/api" // For local development
+  : "https://chating-app-eujl.onrender.com/api"; // Production backend URL deployed on Render
 
 export const useAuthStore = create((set, get) => ({
   authUser: null,
@@ -98,6 +100,7 @@ export const useAuthStore = create((set, get) => ({
       query: {
         userId: authUser._id,
       },
+      transports: ["websocket", "polling"], // Use both transports
     });
     socket.connect();
     set({ socket: socket });

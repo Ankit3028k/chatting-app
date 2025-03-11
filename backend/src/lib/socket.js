@@ -11,6 +11,7 @@ const io = new Server(server, {
     origin: "https://chating-with-anyone.vercel.app", // Allow only this origin
     methods: ["GET", "POST"],
     allowedHeaders: ["Content-Type"],
+    credentials: true,  // Ensure credentials are allowed if you're using cookies or sessions
   },
   transports: ["websocket", "polling"], // Force both WebSocket and Polling as fallback
 });
