@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 import { io } from "socket.io-client";
 
 const BASE_URL = import.meta.env.MODE === "development"
-  ? "http://localhost:3000/api" // For local development
+  ? "http://localhost:3000" // For local development
   : "https://chating-app-eujl.onrender.com"; // Production backend URL deployed on Render
 
 export const useAuthStore = create((set, get) => ({
