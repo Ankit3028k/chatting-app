@@ -22,15 +22,15 @@ app.use(cookieParser());
 
 app.use( 
   cors({
-    origin: "http://localhost:5173", 
+    origin: "https://chating-with-anyone.vercel.app", 
     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Specify the allowed methods
     credentials: true,
   }) 
 );
-       
+
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
-  
+
 // if (process.env.NODE_ENV === "production") {
 //   app.use(express.static(path.join(__dirname, "../frontend/dist")));
  

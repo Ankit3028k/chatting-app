@@ -5,56 +5,35 @@ import express from "express";
 const app = express();
 const server = http.createServer(app);
 
-// Socket.IO server setup
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
-    methods: ["GET", "POST"],  
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
-    preflightContinue: true,
-    optionsSuccessStatus: 204,
+    origin: "https://chating-with-anyone.vercel.app/", // Temporarily allow all origins (don't use in production)
   },
-  
-  transports: ["websocket", "polling"], // Force both WebSocket and Polling as fallback
+  transports: ["websocket", "polling"], // Force both WebSocket and Polling
 });
 
-const userSocketMap = {}; // Used to store online users {userId: socketId}
-
-// Function to retrieve a socketId by userId
 export function getReceiverSocketId(userId) {
   return userSocketMap[userId];
 }
 
-// When a client connects
+// used to store online users
+const userSocketMap = {}; // {userId: socketId}
+
 io.on("connection", (socket) => {
-  console.log(`A user connected: ${socket.id}`);
+  console.log("A user connected", socket.id);
 
   const userId = socket.handshake.query.userId;
-  
-  if (userId) {
-    userSocketMap[userId] = socket.id;
-    console.log(`User ${userId} connected with socket id: ${socket.id}`);
-  }
+  if (userId) userSocketMap[userId] = socket.id;
 
-  // Emit the list of online users to all clients
+  // io.emit() is used to send events to all the connected clients
   io.emit("getOnlineUsers", Object.keys(userSocketMap));
 
-  // Handle user disconnecting
   socket.on("disconnect", () => {
-    console.log(`A user disconnected: ${socket.id}`);
-    
-    // Remove user from userSocketMap
-    if (userId) {
-      delete userSocketMap[userId];
-      console.log(`User ${userId} disconnected`);
-    }
-
-    // Emit the updated list of online users
+    console.log("A user disconnected", socket.id);
+    delete userSocketMap[userId];
     io.emit("getOnlineUsers", Object.keys(userSocketMap));
   });
 });
 
-
-
 export { io, app, server };
+    
