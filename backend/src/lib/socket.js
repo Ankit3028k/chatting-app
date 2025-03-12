@@ -8,8 +8,8 @@ const server = http.createServer(app);
 // Socket.IO server setup
 const io = new Server(server, {
   cors: {
-    origin: "https://chating-with-anyone.vercel.app",
-    methods: ["GET", "POST"],
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST"],  
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
     preflightContinue: true,
