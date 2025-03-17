@@ -21,6 +21,11 @@ const App = () => {
   console.log({ onlineUsers });
 
   useEffect(() => {
+    // Request Notification permission if it's not granted yet
+    if (Notification.permission !== "granted") {
+      Notification.requestPermission();
+    }
+    
     checkAuth();
   }, [checkAuth]);
 
