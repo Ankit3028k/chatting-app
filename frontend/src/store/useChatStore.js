@@ -1,3 +1,4 @@
+// src/store/useChatStore.js
 import { create } from "zustand";
 import toast from "react-hot-toast";
 import { axiosInstance } from "../lib/axios";
@@ -7,22 +8,32 @@ import notify from '../assets/sound/notification.mp3';
 export const useChatStore = create((set, get) => ({
   messages: [],
   users: [],
-  selectedUser: null, 
+  selectedUser: null,
   isUsersLoading: false,
   isMessagesLoading: false,
 
+  // Get users and sort them by the last message time
   getUsers: async () => {
     set({ isUsersLoading: true });
     try {
       const res = await axiosInstance.get("/api/messages/users");
-      set({ users: res.data });
+      const usersWithLastMessage = await Promise.all(res.data.map(async (user) => {
+        const messages = await axiosInstance.get(`/api/messages/${user._id}`);
+        user.lastMessageTime = messages.data.length > 0 ? messages.data[messages.data.length - 1].createdAt : null;
+        return user;
+      }));
+
+      // Sort users by the latest message time
+      usersWithLastMessage.sort((a, b) => new Date(b.lastMessageTime) - new Date(a.lastMessageTime));
+      set({ users: usersWithLastMessage });
     } catch (error) {
       toast.error(error.response.data.message);
-    } finally { 
+    } finally {
       set({ isUsersLoading: false });
     }
   },
 
+  // Get messages of a selected user
   getMessages: async (userId) => {
     set({ isMessagesLoading: true });
     try {
@@ -34,6 +45,8 @@ export const useChatStore = create((set, get) => ({
       set({ isMessagesLoading: false });
     }
   },
+
+  // Send message to the selected user
   sendMessage: async (messageData) => {
     const { selectedUser, messages } = get();
     try {
@@ -44,42 +57,42 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
+  // Subscribe to new incoming messages and show notifications
   subscribeToMessages: () => {
     const { selectedUser } = get();
     if (!selectedUser) return;
-  
+
     const socket = useAuthStore.getState().socket;
-  
+
     socket.on("newMessage", (newMessage) => {
       const isMessageSentFromSelectedUser = newMessage.senderId === selectedUser._id;
-      if (!isMessageSentFromSelectedUser) return;
-      const sound = new Audio(notify);
-      sound.play();
-  
+      if (!isMessageSentFromSelectedUser) {
+        // Play notification sound
+        const sound = new Audio(notify);
+        sound.play();
+
+        // Show browser notification
+        if (Notification.permission === "granted") {
+          const notification = new Notification("New message from " + newMessage.senderName, {
+            body: newMessage.text,
+            icon: newMessage.senderProfilePic || "/avatar.png", // Optional: user profile image as the icon
+          });
+        }
+      }
+
       // Update messages in store
       set({
         messages: [...get().messages, newMessage],
       });
-      // Show browser notification if the message is from the selected user
-      if (Notification.permission === "granted") {
-        const notification = new Notification("New message from " + newMessage.senderName, {
-          body: newMessage.text,
-          icon: newMessage.senderProfilePic || "/avatar.png", // Optional: user profile image as the icon
-        });
-      }
-  
-      // Play sound for new message (this was already there)
-    
-      showNotification("You have a new message!");
-      
     });
-  }
-  ,
+  },
 
+  // Unsubscribe from new incoming messages
   unsubscribeFromMessages: () => {
     const socket = useAuthStore.getState().socket;
     socket.off("newMessage");
   },
 
+  // Set selected user
   setSelectedUser: (selectedUser) => set({ selectedUser }),
 }));
