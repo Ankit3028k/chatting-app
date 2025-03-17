@@ -53,7 +53,13 @@ export const useChatStore = create((set, get) => ({
     socket.on("newMessage", (newMessage) => {
       const isMessageSentFromSelectedUser = newMessage.senderId === selectedUser._id;
       if (!isMessageSentFromSelectedUser) return;
+      const sound = new Audio(notify);
+      sound.play();
   
+      // Update messages in store
+      set({
+        messages: [...get().messages, newMessage],
+      });
       // Show browser notification if the message is from the selected user
       if (Notification.permission === "granted") {
         const notification = new Notification("New message from " + newMessage.senderName, {
@@ -63,14 +69,9 @@ export const useChatStore = create((set, get) => ({
       }
   
       // Play sound for new message (this was already there)
-      const sound = new Audio(notify);
+    
       showNotification("You have a new message!");
-      sound.play();
-  
-      // Update messages in store
-      set({
-        messages: [...get().messages, newMessage],
-      });
+      
     });
   }
   ,
