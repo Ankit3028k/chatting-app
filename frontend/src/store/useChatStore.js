@@ -47,19 +47,33 @@ export const useChatStore = create((set, get) => ({
   subscribeToMessages: () => {
     const { selectedUser } = get();
     if (!selectedUser) return;
-
+  
     const socket = useAuthStore.getState().socket;
-
+  
     socket.on("newMessage", (newMessage) => {
       const isMessageSentFromSelectedUser = newMessage.senderId === selectedUser._id;
       if (!isMessageSentFromSelectedUser) return;
+  
+      // Show browser notification if the message is from the selected user
+      if (Notification.permission === "granted") {
+        const notification = new Notification("New message from " + newMessage.senderName, {
+          body: newMessage.text,
+          icon: newMessage.senderProfilePic || "/avatar.png", // Optional: user profile image as the icon
+        });
+      }
+  
+      // Play sound for new message (this was already there)
       const sound = new Audio(notify);
+      showNotification("You have a new message!");
       sound.play();
+  
+      // Update messages in store
       set({
         messages: [...get().messages, newMessage],
       });
     });
-  },
+  }
+  ,
 
   unsubscribeFromMessages: () => {
     const socket = useAuthStore.getState().socket;
