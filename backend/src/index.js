@@ -22,7 +22,7 @@ app.use(cookieParser());
 
 app.use( 
   cors({
-    origin: "https://chating-with-anyone.vercel.app", 
+    origin: "https://chating-with-anyone.vercel.app/", 
     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Specify the allowed methods
     credentials: true,
   }) 
