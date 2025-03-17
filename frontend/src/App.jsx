@@ -25,12 +25,7 @@ const App = () => {
     if (Notification.permission !== "granted") {
       Notification.requestPermission();
     }
-    if (Notification.permission === "granted") {
-      const notification = new Notification("New message from " + newMessage.senderName, {
-        body: newMessage.text,
-        icon: newMessage.senderProfilePic || "/avatar.png", // Optional: user profile image as the icon
-      });
-    }
+    
     checkAuth();
   }, [checkAuth]);
 
