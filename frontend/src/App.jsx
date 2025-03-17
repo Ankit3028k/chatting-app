@@ -25,7 +25,21 @@ const App = () => {
     if (Notification.permission !== "granted") {
       Notification.requestPermission();
     }
-    
+
+    // Simulating a message notification, make sure `newMessage` is defined from your store or props
+    const newMessage = {
+      senderName: "John Doe",
+      text: "Hello, you've received a new message!",
+      senderProfilePic: "/avatar.png", // Optional: user profile image as the icon
+    };
+
+    if (Notification.permission === "granted") {
+      const notification = new Notification("New message from " + newMessage.senderName, {
+        body: newMessage.text,
+        icon: newMessage.senderProfilePic,
+      });
+    }
+
     checkAuth();
   }, [checkAuth]);
 
@@ -54,4 +68,5 @@ const App = () => {
     </div>
   );
 };
+
 export default App;
