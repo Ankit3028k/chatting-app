@@ -7,7 +7,7 @@ import notify from '../assets/sound/notification.mp3';
 export const useChatStore = create((set, get) => ({
   messages: [],
   users: [],
-  selectedUser: null,
+  selectedUser: null, 
   isUsersLoading: false,
   isMessagesLoading: false,
 
@@ -17,8 +17,8 @@ export const useChatStore = create((set, get) => ({
       const res = await axiosInstance.get("/api/messages/users");
       set({ users: res.data });
     } catch (error) {
-      toast.error(error.response?.data?.message || "Error fetching users");
-    } finally {
+      toast.error(error.response.data.message);
+    } finally { 
       set({ isUsersLoading: false });
     }
   },
@@ -29,55 +29,53 @@ export const useChatStore = create((set, get) => ({
       const res = await axiosInstance.get(`/api/messages/${userId}`);
       set({ messages: res.data });
     } catch (error) {
-      toast.error(error.response?.data?.message || "Error fetching messages");
+      toast.error(error.response.data.message);
     } finally {
       set({ isMessagesLoading: false });
     }
   },
-
   sendMessage: async (messageData) => {
-    const { selectedUser, messages, isMessagesLoading } = get();
-    if (isMessagesLoading) return; // Prevent sending messages while loading
+    const { selectedUser, messages } = get();
     try {
       const res = await axiosInstance.post(`/api/messages/send/${selectedUser._id}`, messageData);
       set({ messages: [...messages, res.data] });
     } catch (error) {
-      toast.error(error.response?.data?.message || "Error sending message");
+      toast.error(error.response.data.message);
     }
   },
 
   subscribeToMessages: () => {
     const { selectedUser } = get();
+    if (!selectedUser) return;
+  
     const socket = useAuthStore.getState().socket;
-    
+  
     socket.on("newMessage", (newMessage) => {
-     
-      const isMessageSentFromSelectedUser = selectedUser && newMessage.senderId === selectedUser._id;
-      
-      if (!isMessageSentFromSelectedUser) {
-        const sound = new Audio(notify);
-        sound.play();
-      }
-      
-      // Show browser notification only for messages from non-selected users
-      if (!selectedUser && Notification.permission === "granted") {
-        const notification = new Notification("New message from " + newMessage.senderId.fullName, {
-          body: newMessage.text,
-          icon: newMessage.senderProfilePic || "/avatar.png",
-        });
-      }
-
-      if (!isMessageSentFromSelectedUser) {
-        showNotification("You have a new message!");
-      }
-      
-      // Always update messages in store
+      const isMessageSentFromSelectedUser = newMessage.senderId === selectedUser._id;
+      // if (!isMessageSentFromSelectedUser) return;
+      const sound = new Audio(notify);
+      sound.play();
+  
+      // Update messages in store
       set({
         messages: [...get().messages, newMessage],
       });
-    });
-  },
+      // Show browser notification if the message is from the selected user
+      if (!isMessageSentFromSelectedUser && Notification.permission === "granted") {
+        const notification = new Notification("New message from " + newMessage.senderName, {
+          body: newMessage.text,
+          icon: newMessage.senderProfilePic || "/avatar.png", // Optional: user profile image as the icon
+        });
+      }
   
+      // Play sound for new message (this was already there)
+    
+      showNotification("You have a new message!");
+      
+    });
+  }
+  ,
+
   unsubscribeFromMessages: () => {
     const socket = useAuthStore.getState().socket;
     socket.off("newMessage");
