@@ -50,7 +50,7 @@ export const useChatStore = create((set, get) => ({
     
     socket.on("newMessage", (newMessage) => {
       const { selectedUser } = get();
-      // const isMessageSentFromSelectedUser = selectedUser && newMessage.senderId === selectedUser._id;
+      const isMessageSentFromSelectedUser = selectedUser && newMessage.senderId === selectedUser._id;
       
       // Play notification sound for all new messages, regardless of selected user
       const sound = new Audio(notify);
