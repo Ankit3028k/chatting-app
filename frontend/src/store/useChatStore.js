@@ -7,7 +7,7 @@ import notify from '../assets/sound/notification.mp3';
 export const useChatStore = create((set, get) => ({
   messages: [],
   users: [],
-  selectedUser: null, 
+  selectedUser: null,
   isUsersLoading: false,
   isMessagesLoading: false,
 
@@ -17,8 +17,8 @@ export const useChatStore = create((set, get) => ({
       const res = await axiosInstance.get("/api/messages/users");
       set({ users: res.data });
     } catch (error) {
-      toast.error(error.response.data.message);
-    } finally { 
+      toast.error(error.response?.data?.message || "Error fetching users");
+    } finally {
       set({ isUsersLoading: false });
     }
   },
@@ -29,19 +29,20 @@ export const useChatStore = create((set, get) => ({
       const res = await axiosInstance.get(`/api/messages/${userId}`);
       set({ messages: res.data });
     } catch (error) {
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || "Error fetching messages");
     } finally {
       set({ isMessagesLoading: false });
     }
   },
 
   sendMessage: async (messageData) => {
-    const { selectedUser, messages } = get();
+    const { selectedUser, messages, isMessagesLoading } = get();
+    if (isMessagesLoading) return; // Prevent sending messages while loading
     try {
       const res = await axiosInstance.post(`/api/messages/send/${selectedUser._id}`, messageData);
       set({ messages: [...messages, res.data] });
     } catch (error) {
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || "Error sending message");
     }
   },
 
@@ -52,9 +53,10 @@ export const useChatStore = create((set, get) => ({
       const { selectedUser } = get();
       const isMessageSentFromSelectedUser = selectedUser && newMessage.senderId === selectedUser._id;
       
-      // Play notification sound for all new messages, regardless of selected user
-      const sound = new Audio(notify);
-      sound.play();
+      if (!isMessageSentFromSelectedUser) {
+        const sound = new Audio(notify);
+        sound.play();
+      }
       
       // Show browser notification only for messages from non-selected users
       if (!isMessageSentFromSelectedUser && Notification.permission === "granted") {
@@ -63,8 +65,7 @@ export const useChatStore = create((set, get) => ({
           icon: newMessage.senderProfilePic || "/avatar.png",
         });
       }
-      
-      // Show toast notification for messages from non-selected users
+
       if (!isMessageSentFromSelectedUser) {
         showNotification("You have a new message!");
       }
@@ -82,4 +83,4 @@ export const useChatStore = create((set, get) => ({
   },
 
   setSelectedUser: (selectedUser) => set({ selectedUser }),
-}));   
+}));
