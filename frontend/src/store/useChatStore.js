@@ -46,30 +46,30 @@ export const useChatStore = create((set, get) => ({
   },
 
   subscribeToMessages: () => {
-    const { selectedUser } = get();
-    if (!selectedUser) return;
-  
     const socket = useAuthStore.getState().socket;
   
     socket.on("newMessage", (newMessage) => {
-      const isMessageSentFromSelectedUser = newMessage.senderId === selectedUser._id;
+      const { selectedUser } = get();
+      const isMessageSentFromSelectedUser = selectedUser && newMessage.senderId === selectedUser._id;
       
-      // Play notification sound only if the message is NOT from the selected user
+      // Play notification sound for all new messages
+      const sound = new Audio(notify);
+      sound.play();
+      
+      // Show browser notification only for messages from non-selected users
+      if (!isMessageSentFromSelectedUser && Notification.permission === "granted") {
+        const notification = new Notification("New message from " + newMessage.senderName, {
+          body: newMessage.text,
+          icon: newMessage.senderProfilePic || "/avatar.png",
+        });
+      }
+      
+      // Show toast notification for messages from non-selected users
       if (!isMessageSentFromSelectedUser) {
-        const sound = new Audio(notify);
-        sound.play();
-        
-        // Show browser notification for messages from non-selected users
-        if (Notification.permission === "granted") {
-          const notification = new Notification("New message from " + newMessage.senderName, {
-            body: newMessage.text,
-            icon: newMessage.senderProfilePic || "/avatar.png",
-          });
-        }
         showNotification("You have a new message!");
       }
       
-      // Always update messages in store, regardless of who sent it
+      // Always update messages in store
       set({
         messages: [...get().messages, newMessage],
       });
