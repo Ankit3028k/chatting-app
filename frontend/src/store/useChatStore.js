@@ -47,10 +47,11 @@ export const useChatStore = create((set, get) => ({
   },
 
   subscribeToMessages: () => {
+    const { selectedUser } = get();
     const socket = useAuthStore.getState().socket;
     
     socket.on("newMessage", (newMessage) => {
-      const { selectedUser } = get();
+     
       const isMessageSentFromSelectedUser = selectedUser && newMessage.senderId === selectedUser._id;
       
       if (!isMessageSentFromSelectedUser) {
@@ -59,7 +60,7 @@ export const useChatStore = create((set, get) => ({
       }
       
       // Show browser notification only for messages from non-selected users
-      if (!selectedUser && Notification.permission === "granted") {
+      if (!isMessageSentFromSelectedUser && Notification.permission === "granted") {
         const notification = new Notification("New message from " + newMessage.senderId.fullName, {
           body: newMessage.text,
           icon: newMessage.senderProfilePic || "/avatar.png",
