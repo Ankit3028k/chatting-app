@@ -48,7 +48,7 @@ export const useChatStore = create((set, get) => ({
 
   subscribeToMessages: () => {
     const socket = useAuthStore.getState().socket;
-    
+  
     socket.on("newMessage", (newMessage) => {
       const { selectedUser } = get();
       const isMessageSentFromSelectedUser = selectedUser && newMessage.senderId === selectedUser._id;
@@ -57,7 +57,7 @@ export const useChatStore = create((set, get) => ({
         const sound = new Audio(notify);
         sound.play();
       }
-      
+  
       // Show browser notification only for messages from non-selected users
       if (!isMessageSentFromSelectedUser && Notification.permission === "granted") {
         const notification = new Notification("New message from " + newMessage.senderId.fullName, {
@@ -65,17 +65,19 @@ export const useChatStore = create((set, get) => ({
           icon: newMessage.senderProfilePic || "/avatar.png",
         });
       }
-
-      if (!isMessageSentFromSelectedUser) {
-        showNotification("You have a new message!");
+  
+      // The error was here: `showNotification` is not defined. Replaced it with a `Notification` call
+      if (!isMessageSentFromSelectedUser && Notification.permission === "granted") {
+        new Notification("You have a new message!");
       }
-      
+  
       // Always update messages in store
       set({
         messages: [...get().messages, newMessage],
       });
     });
   },
+  
   
   unsubscribeFromMessages: () => {
     const socket = useAuthStore.getState().socket;
