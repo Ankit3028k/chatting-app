@@ -70,10 +70,9 @@ export const useChatStore = create((set, get) => ({
           icon: newMessage.senderProfilePic || "/avatar.png",
         });
       }
-  
-      // Use toast to show a message when the user is not selected
+
       if (!isMessageSentFromSelectedUser) {
-        toast.success("You have a new message!");
+        showNotification("You have a new message!");
       }
       
       // Always update messages in store
@@ -81,8 +80,7 @@ export const useChatStore = create((set, get) => ({
         messages: [...get().messages, newMessage],
       });
     });
-  }
-  ,
+  },
   
   // Unsubscribe from socket
   unsubscribeFromMessages: () => {
