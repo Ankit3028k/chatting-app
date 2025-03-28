@@ -61,7 +61,7 @@ export const useChatStore = create((set, get) => ({
         messages: [...get().messages, newMessage],
       });
       // Show browser notification if the message is from the selected user
-      if (!selectedUser && Notification.permission === "granted") {
+      if (!isMessageSentFromSelectedUser && Notification.permission === "granted") {
         const notification = new Notification("New message from " + newMessage.senderName, {
           body: newMessage.text,
           icon: newMessage.senderProfilePic || "/avatar.png", // Optional: user profile image as the icon
