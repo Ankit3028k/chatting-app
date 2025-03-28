@@ -59,7 +59,7 @@ export const useChatStore = create((set, get) => ({
       }
       
       // Show browser notification only for messages from non-selected users
-      if (!isMessageSentFromSelectedUser && Notification.permission === "granted") {
+      if (!selectedUser && Notification.permission === "granted") {
         const notification = new Notification("New message from " + newMessage.senderId.fullName, {
           body: newMessage.text,
           icon: newMessage.senderProfilePic || "/avatar.png",
