@@ -5,14 +5,12 @@ import { useAuthStore } from "./useAuthStore";
 import notify from '../assets/sound/notification.mp3';
 
 export const useChatStore = create((set, get) => ({
-  // State variables
   messages: [],
   users: [],
   selectedUser: null,
   isUsersLoading: false,
   isMessagesLoading: false,
 
-  // Fetch users
   getUsers: async () => {
     set({ isUsersLoading: true });
     try {
@@ -25,7 +23,6 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
-  // Fetch messages
   getMessages: async (userId) => {
     set({ isMessagesLoading: true });
     try {
@@ -38,7 +35,6 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
-  // Send message
   sendMessage: async (messageData) => {
     const { selectedUser, messages, isMessagesLoading } = get();
     if (isMessagesLoading) return; // Prevent sending messages while loading
@@ -50,7 +46,6 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
-  // Subscribe to socket
   subscribeToMessages: () => {
     const socket = useAuthStore.getState().socket;
     
@@ -82,12 +77,10 @@ export const useChatStore = create((set, get) => ({
     });
   },
   
-  // Unsubscribe from socket
   unsubscribeFromMessages: () => {
     const socket = useAuthStore.getState().socket;
     socket.off("newMessage");
   },
 
-  // Set selected user
   setSelectedUser: (selectedUser) => set({ selectedUser }),
 }));
