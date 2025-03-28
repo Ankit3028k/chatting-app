@@ -52,10 +52,10 @@ export const useChatStore = create((set, get) => ({
   
     socket.on("newMessage", (newMessage) => {
       const isMessageSentFromSelectedUser = newMessage.senderId === selectedUser._id;
-      // if (!isMessageSentFromSelectedUser) return;
+      if (!isMessageSentFromSelectedUser){ 
       const sound = new Audio(notify);
       sound.play();
-  
+      }
       // Update messages in store
       set({
         messages: [...get().messages, newMessage],
