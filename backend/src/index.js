@@ -3,6 +3,9 @@ import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 
+import cron from "node-cron";
+import fetch from "node-fetch";
+
 // import path from "path";
 
 import { connectDB } from "./lib/db.js";
@@ -30,6 +33,31 @@ app.use(
 
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
+
+
+
+const BACKEND_URL = "https://chating-app-eujl.onrender.com/health";
+
+cron.schedule("*/10 * * * *", async () => {
+  try {
+    await fetch(BACKEND_URL);
+    console.log("Pinged backend to keep alive");
+  } catch (err) {
+    console.log("Ping failed", err);
+  }
+});
+
+
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Server is running',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
 
 // if (process.env.NODE_ENV === "production") {
 //   app.use(express.static(path.join(__dirname, "../frontend/dist")));
